@@ -6,21 +6,18 @@ const { errors } = require('celebrate');
 const bodyParser = require('body-parser');
 const helmet = require('helmet');
 
-const userRouter = require('./routes/users');
-const movieRouter = require('./routes/movies');
-const { login, createUser } = require('./controllers/users');
-const { validateRegist, validateLogin } = require('./middlewares/validator');
-const auth = require('./middlewares/auth');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const errorHandler = require('./middlewares/errors');
+const { limiter } = require('./middlewares/limiter');
+const { PORT, MONGO_URL } = require('./utils/config');
 
-const NotFoundErr = require('./errors/NotFoundErr');
+const router = require('./routes');
 
 const app = express();
 
-const { PORT = 3000 } = process.env;
-
-mongoose.connect('mongodb://localhost:27017/moviesdb');
+mongoose.connect(MONGO_URL, {
+  useNewUrlParser: true,
+});
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -28,20 +25,11 @@ app.use(requestLogger);
 app.use('*', cors());
 app.options('*', cors());
 
-app.post('/signin', validateLogin, login);
-app.post('/signup', validateRegist, createUser);
-
-app.use(auth);
-
-app.use('/users', userRouter);
-app.use('/movies', movieRouter);
-
-app.use((req, res, next) => {
-  next(new NotFoundErr('Запрашиваемая страница не найдена'));
-});
+app.use('/', router);
 
 app.use(helmet());
 app.use(errorLogger);
+app.use(limiter);
 app.use(errors());
 app.use(errorHandler);
 

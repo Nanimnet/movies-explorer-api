@@ -5,7 +5,6 @@ const movieSchema = new mongoose.Schema({
   country: {
     type: String,
     required: true,
-    unique: true,
   },
   director: {
     type: String,
