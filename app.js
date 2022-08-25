@@ -7,7 +7,7 @@ const bodyParser = require('body-parser');
 const helmet = require('helmet');
 
 const { requestLogger, errorLogger } = require('./middlewares/logger');
-const errorHandler = require('./middlewares/errors');
+// const errorHandler = require('./middlewares/errors');
 const { limiter } = require('./middlewares/limiter');
 const { PORT, MONGO_URL } = require('./utils/config');
 
@@ -31,7 +31,7 @@ app.use(helmet());
 app.use(errorLogger);
 app.use(limiter);
 app.use(errors());
-app.use(errorHandler);
+// app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
